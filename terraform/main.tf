@@ -1,25 +1,21 @@
-# Define o provedor AWS e a região
+```terraform
 provider "aws" {
-  region     = "us-east-1"
+  region      = "us-east-1"
 }
 
-# ------------------------------------------------------------------------------------------------
-# VPC e Redes
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_vpc" "strapi_vpc" { # Mantém o nome do recurso para não recriar a VPC
-  cidr_block           = "10.0.0.0/16" # Bloco CIDR para sua VPC
+resource "aws_vpc" "strapi_vpc" {
+  cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
   enable_dns_support   = true
   tags = {
-    Name = "html-app-vpc" # Nome do tag pode ser mantido ou alterado para 'html-app-vpc'
+    Name = "html-app-vpc"
   }
 }
 
 resource "aws_subnet" "public_subnet_1" {
   vpc_id                  = aws_vpc.strapi_vpc.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a" # Escolha uma AZ na sua região
+  availability_zone       = "us-east-1a"
   map_public_ip_on_launch = true
   tags = {
     Name = "strapi-public-subnet-1"
@@ -29,7 +25,7 @@ resource "aws_subnet" "public_subnet_1" {
 resource "aws_subnet" "public_subnet_2" {
   vpc_id                  = aws_vpc.strapi_vpc.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-1b" # IMPORTANTE: Uma AZ diferente da public_subnet_1
+  availability_zone       = "us-east-1b"
   map_public_ip_on_launch = true
   tags = {
     Name = "strapi-public-subnet-2"
@@ -55,21 +51,17 @@ resource "aws_route_table" "strapi_public_rt" {
 }
 
 resource "aws_route_table_association" "strapi_public_rta_1" {
-  subnet_id    = aws_subnet.public_subnet_1.id
+  subnet_id      = aws_subnet.public_subnet_1.id
   route_table_id = aws_route_table.strapi_public_rt.id
 }
 
 resource "aws_route_table_association" "strapi_public_rta_2" {
-  subnet_id    = aws_subnet.public_subnet_2.id
+  subnet_id      = aws_subnet.public_subnet_2.id
   route_table_id = aws_route_table.strapi_public_rt.id
 }
 
-# ------------------------------------------------------------------------------------------------
-# Security Groups (Atualizado para a porta 80)
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_security_group" "strapi_alb_sg" { # Mantém o nome do recurso
-  name        = "html-alb-sg" # Nome mais descritivo
+resource "aws_security_group" "strapi_alb_sg" {
+  name        = "html-alb-sg"
   description = "Allow HTTP access to ALB for HTML app"
   vpc_id      = aws_vpc.strapi_vpc.id
 
@@ -77,14 +69,14 @@ resource "aws_security_group" "strapi_alb_sg" { # Mantém o nome do recurso
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Permite acesso HTTP de qualquer lugar
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Permite acesso HTTPS de qualquer lugar
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -94,20 +86,20 @@ resource "aws_security_group" "strapi_alb_sg" { # Mantém o nome do recurso
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "html-alb-sg" # Tag atualizado
+    Name = "html-alb-sg"
   }
 }
 
-resource "aws_security_group" "strapi_ecs_sg" { # Mantém o nome do recurso
-  name        = "html-ecs-sg" # Nome mais descritivo
+resource "aws_security_group" "strapi_ecs_sg" {
+  name        = "html-ecs-sg"
   description = "Allow traffic from ALB to HTML app tasks"
   vpc_id      = aws_vpc.strapi_vpc.id
 
   ingress {
-    from_port       = 80 # <--- PORTA DO NGINX/HTML APP
-    to_port         = 80 # <--- PORTA DO NGINX/HTML APP
+    from_port       = 80
+    to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.strapi_alb_sg.id] # Permite tráfego apenas do ALB
+    security_groups = [aws_security_group.strapi_alb_sg.id]
   }
 
   egress {
@@ -117,16 +109,12 @@ resource "aws_security_group" "strapi_ecs_sg" { # Mantém o nome do recurso
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "html-ecs-sg" # Tag atualizado
+    Name = "html-ecs-sg"
   }
 }
 
-# ------------------------------------------------------------------------------------------------
-# IAM Roles para ECS (provavelmente não precisam de mudança)
-# ------------------------------------------------------------------------------------------------
-
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "strapi-ecs-task-execution-role" # Mantém o nome, é genérico
+  name = "strapi-ecs-task-execution-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -148,7 +136,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
 }
 
 resource "aws_iam_role" "ecs_task_role" {
-  name = "strapi-ecs-task-role" # Mantém o nome, é genérico
+  name = "strapi-ecs-task-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -164,41 +152,33 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-# ------------------------------------------------------------------------------------------------
-# ECS Cluster (provavelmente não precisa de mudança)
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_ecs_cluster" "strapi_cluster" { # Mantém o nome do recurso
-  name = "strapi-cluster" # Nome do cluster pode ser mantido ou alterado
+resource "aws_ecs_cluster" "strapi_cluster" {
+  name = "strapi-cluster"
   tags = {
     Name = "strapi-cluster"
   }
 }
 
-# ------------------------------------------------------------------------------------------------
-# ECS Task Definition (atualizado para HTML/Nginx)
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_ecs_task_definition" "strapi_task" { # Mantém o nome do recurso
-  family                 = "html-app-task-v5" # <--- NOVO NOME DE FAMÍLIA DE TASK
-  cpu                    = "256" # <--- CPU REDUZIDA PARA HTML
-  memory                 = "512" # <--- MEMÓRIA REDUZIDA PARA HTML
-  network_mode           = "awsvpc"
+resource "aws_ecs_task_definition" "strapi_task" {
+  family                   = "html-app-task-v6"
+  cpu                      = "256"
+  memory                   = "512"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  execution_role_arn     = aws_iam_role.ecs_task_execution_role.arn
-  task_role_arn          = aws_iam_role.ecs_task_role.arn
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([
     {
-      name        = "html-app-container" # <--- NOVO NOME DO CONTÊINER
-      image       = var.docker_image     # Usa a imagem do Docker Hub (html-app:latest)
+      name        = "html-app-container"
+      image       = var.docker_image
       cpu         = 256
       memory      = 512
       essential   = true
       portMappings = [
         {
-          containerPort = 80 # <--- PORTA DO NGINX/HTML APP
-          hostPort      = 80 # <--- PORTA DO NGINX/HTML APP
+          containerPort = 80
+          hostPort      = 80
           protocol      = "tcp"
         }
       ]
@@ -210,85 +190,77 @@ resource "aws_ecs_task_definition" "strapi_task" { # Mantém o nome do recurso
           "awslogs-stream-prefix" = "ecs"
         }
       }
-      environment = [] # Não precisa de variáveis de ambiente do Strapi
+      environment = []
     }
   ])
   tags = {
-    Name = "html-app-task-definition-v3" # Tag atualizado
+    Name = "html-app-task-definition-v3"
   }
 }
 
-# ------------------------------------------------------------------------------------------------
-# ECS Service (atualizado para HTML/Nginx)
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_ecs_service" "strapi_service" { # Mantém o nome do recurso
-  name            = "html-app-service-v2" # <--- NOVO NOME DO SERVIÇO
+resource "aws_ecs_service" "strapi_service" {
+  name            = "html-app-service-v2"
   cluster         = aws_ecs_cluster.strapi_cluster.id
   task_definition = aws_ecs_task_definition.strapi_task.arn
-  desired_count   = 1 # Uma instância do HTML APP rodando
+  desired_count   = 1
 
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id] # Referencia as duas subnets
+    subnets         = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
     security_groups = [aws_security_group.strapi_ecs_sg.id]
     assign_public_ip = true
   }
 
   load_balancer {
     target_group_arn = aws_lb_target_group.strapi_tg.arn
-    container_name   = "html-app-container" # <--- NOVO NOME DO CONTÊINER
-    container_port   = 80                   # <--- PORTA DO NGINX/HTML APP
+    container_name   = "html-app-container"
+    container_port   = 80
   }
 
   depends_on = [aws_lb_listener.strapi_http_listener]
 
   tags = {
-    Name = "html-app-service-v2" # Tag atualizado
+    Name = "html-app-service-v2"
   }
 }
 
-# ------------------------------------------------------------------------------------------------
-# Application Load Balancer (ALB) (atualizado para HTML/Nginx)
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_lb" "strapi_alb" { # Mantém o nome do recurso
-  name                 = "html-app-alb" # <--- NOVO NOME DO ALB (se quiser, ou mantém strapi-alb)
-  internal             = false
-  load_balancer_type   = "application"
-  security_groups      = [aws_security_group.strapi_alb_sg.id]
-  subnets              = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id] # Referencia as duas subnets
+resource "aws_lb" "strapi_alb" {
+  name                       = "html-app-alb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.strapi_alb_sg.id]
+  subnets                    = [aws_subnet.public_subnet_1.id, aws_subnet.public_subnet_2.id]
 
   enable_deletion_protection = false
 
   tags = {
-    Name = "html-app-alb" # Tag atualizado
+    Name = "html-app-alb"
   }
 }
 
-resource "aws_lb_target_group" "strapi_tg" { # Mantém o nome do recurso
-  name        = "html-app-tg" # <--- NOVO NOME DO TARGET GROUP
-  port        = 80            # <--- PORTA DO NGINX/HTML APP
+resource "aws_lb_target_group" "strapi_tg" {
+  name        = "html-app-tg"
+  port        = 80
   protocol    = "HTTP"
   vpc_id      = aws_vpc.strapi_vpc.id
   target_type = "ip"
   
   health_check {
-    path = "/" # <--- PATH RAIZ PARA HEALTH CHECK DO NGINX
-    protocol = "HTTP"
-    matcher = "200"
-    interval = 30
-    timeout = 5
-    healthy_threshold = 2
+    path                = "/"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
     unhealthy_threshold = 2
   }
   tags = {
-    Name = "html-app-target-group" # Tag atualizado
+    Name = "html-app-target-group"
   }
 }
 
-resource "aws_lb_listener" "strapi_http_listener" { # Mantém o nome do recurso
+resource "aws_lb_listener" "strapi_http_listener" {
   load_balancer_arn = aws_lb.strapi_alb.arn
   port              = 80
   protocol          = "HTTP"
@@ -298,19 +270,15 @@ resource "aws_lb_listener" "strapi_http_listener" { # Mantém o nome do recurso
     target_group_arn = aws_lb_target_group.strapi_tg.arn
   }
   tags = {
-    Name = "html-app-http-listener" # Tag atualizado
+    Name = "html-app-http-listener"
   }
 }
 
-# ------------------------------------------------------------------------------------------------
-# CloudWatch Logs (pode manter, é genérico para logs de contêineres)
-# ------------------------------------------------------------------------------------------------
-
-resource "aws_cloudwatch_log_group" "strapi_logs" { # Mantém o nome do recurso
-  name              = "/ecs/html-app" # Nome do log group mais descritivo
+resource "aws_cloudwatch_log_group" "strapi_logs" {
+  name              = "/ecs/html-app"
   retention_in_days = 7
 
   tags = {
-    Name = "html-app-log-group" # Tag atualizado
+    Name = "html-app-log-group"
   }
 }
