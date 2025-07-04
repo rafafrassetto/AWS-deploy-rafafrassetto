@@ -22,13 +22,6 @@ Para uma exploração detalhada e interativa de cada fase do pipeline de CI/CD, 
 
 [**Acessar Documentação Interativa**](https://techshop.wuaze.com/resources/views/RafaelFrassettpPipelineCI_CD.html#)
 
-## 📺 Apresentação do Projeto
-
-Assista à apresentação completa do projeto para entender o contexto, os desafios e os resultados alcançados:
-
-[**Ver Apresentação (Link do Vídeo)**](https://www.youtube.com/watch?v=ic4wmWj3z58&ab_channel=rafafrassetto)
-*(Observação: O link do vídeo fornecido parece ser um placeholder ou está inacessível. Por favor, verifique o link correto para a sua apresentação.)*
-
 ## 🌐 Site em Deploy  
 
 Confira a aplicação em funcionamento, resultado do nosso processo de deploy automatizado:
