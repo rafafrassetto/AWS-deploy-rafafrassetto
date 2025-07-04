@@ -3,7 +3,7 @@ name: Publicar Imagem HTML Docker
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build_and_push_docker_image:
