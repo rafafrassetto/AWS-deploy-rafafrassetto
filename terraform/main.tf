@@ -159,7 +159,7 @@ resource "aws_ecs_cluster" "strapi_cluster" {
 }
 
 resource "aws_ecs_task_definition" "strapi_task" {
-  family                   = "html-app-task-v6"
+  family                   = "html-app-task-v7"
   cpu                      = "256"
   memory                   = "512"
   network_mode             = "awsvpc"
@@ -193,12 +193,12 @@ resource "aws_ecs_task_definition" "strapi_task" {
     }
   ])
   tags = {
-    Name = "html-app-task-definition-v3"
+    Name = "html-app-task-definition-v4"
   }
 }
 
 resource "aws_ecs_service" "strapi_service" {
-  name            = "html-app-service-v2"
+  name            = "html-app-service-v4"
   cluster         = aws_ecs_cluster.strapi_cluster.id
   task_definition = aws_ecs_task_definition.strapi_task.arn
   desired_count   = 1
