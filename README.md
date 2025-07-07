@@ -1,6 +1,6 @@
 # Documentação do Projeto: Pipeline CI/CD com Playwright, GitHub Actions e AWS 
 
-Este projeto demonstra a implementação de um pipeline de Integração Contínua (CI) e Entrega Contínua (CD) robusto, utilizando testes automatizados End-to-End com Playwright, automação de workflows com GitHub Actions e deploy de infraestrutura e aplicação na Amazon Web Services (AWS) via Terraform.
+Este projeto demonstra a implementação de um pipeline de Integração Contínua (CI) e Entrega Contínua (CD) robusto, utilizando testes automatizados End-to-End com Playwright, automação de workflows com GitHub Actions e deploy de infraestrutura e aplicação na Amazon Web Services (AWS) via Terraform. 
 
 ## 🚀 Visão Geral
 
