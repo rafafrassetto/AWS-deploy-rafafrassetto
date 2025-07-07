@@ -26,4 +26,4 @@ Para uma exploração detalhada e interativa de cada fase do pipeline de CI/CD, 
 
 Confira a aplicação em funcionamento, resultado do nosso processo de deploy automatizado:
 
-[**Acessar Site em Deploy**](http://html-app-alb-1448270917.us-east-1.elb.amazonaws.com/)
+[**Acessar Site em Deploy**](http://html-app-alb-1210883556.us-east-1.elb.amazonaws.com/)
