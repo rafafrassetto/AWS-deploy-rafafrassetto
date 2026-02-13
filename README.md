@@ -21,9 +21,3 @@ O objetivo principal deste projeto é automatizar todo o ciclo de vida do desenv
 Para uma exploração detalhada e interativa de cada fase do pipeline de CI/CD, incluindo exemplos de código, fluxogramas e explicações aprofundadas, acesse nossa documentação interativa de página única:
 
 [**Acessar Documentação Interativa**](https://techshop.wuaze.com/resources/views/RafaelFrassettpPipelineCI_CD.html#)
-
-## 🌐 Site em Deploy  
-
-Confira a aplicação em funcionamento, resultado do nosso processo de deploy automatizado:
-
-[**Acessar Site em Deploy**](http://html-app-alb-1210883556.us-east-1.elb.amazonaws.com/)
